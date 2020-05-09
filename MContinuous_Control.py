@@ -10,7 +10,7 @@ import time
 import torch
 from unityagents import UnityEnvironment
 
-def ddpg(train_mode=False, n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=100, print_every=1,
+def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=100, print_every=1,
          actor_path='actor_ckpt.pth', critic_path='critic_ckpt.pth'):
     """Deep Deterministic Policy Gradient (DDPG)
     
@@ -18,7 +18,6 @@ def ddpg(train_mode=False, n_episodes=500, max_t=10000, solved_score=30.0, conse
     ======
         n_episodes (int)      : maximum number of training episodes
         max_t (int)           : maximum number of timesteps per episode
-        train_mode (bool)     : if 'True' set environment to training mode
         solved_score (float)  : min avg score over consecutive episodes
         consec_episodes (int) : number of consecutive episodes used to calculate score
         print_every (int)     : interval to display results
@@ -33,30 +32,24 @@ def ddpg(train_mode=False, n_episodes=500, max_t=10000, solved_score=30.0, conse
     scores_window = deque(maxlen=consec_episodes)  # mean scores from most recent episodes
     moving_avgs = []                               # list of moving averages
     
-    if not train_mode:
-        agent.actor_local.load_state_dict(torch.load(actor_path))
-        agent.critic_local.load_state_dict(torch.load(critic_path))
-  
-
     for i_episode in range(1, n_episodes+1):
-        env_info = env.reset(train_mode=train_mode)[brain_name] # reset environment
+        env_info = env.reset(train_mode=True)[brain_name] # reset environment
         states = env_info.vector_observations                   # get current state for each agent      
         scores = np.zeros(num_agents)                           # initialize score for each agent
         agent.reset()
         start_time = time.time()
         for t in range(max_t):
 
-            actions = agent.act(states, add_noise=train_mode)         # select an action
+            actions = agent.act(states, add_noise=True)         # select an action
             env_info = env.step(actions)[brain_name]            # send actions to environment
             next_states = env_info.vector_observations          # get next state
             rewards = env_info.rewards                          # get reward
             dones = env_info.local_done                         # see if episode has finished
-            print(dones)
-            
-            if not train_mode:
-                # save experience to replay buffer, perform learning step at defined interval
-                for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
-                    agent.step(state, action, reward, next_state, done, t)             
+
+            # save experience to replay buffer, perform learning step at defined interval
+            for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
+                agent.step(state, action, reward, next_state, done, t)             
+
             states = next_states
             scores += rewards        
             if np.any(dones):                                   # exit loop when episode ends
@@ -87,6 +80,33 @@ def ddpg(train_mode=False, n_episodes=500, max_t=10000, solved_score=30.0, conse
             
     return mean_scores, moving_avgs
 
+def ddpg_test(n_episodes=100):
+    agent.actor_local.load_state_dict(torch.load('trained/actor_ckpt.pth'))
+    agent.critic_local.load_state_dict(torch.load('trained/critic_ckpt.pth'))
+    mean_scores = [] 
+
+    for i_episode in range(1, n_episodes+1):
+        env_info = env.reset(train_mode=True)[brain_name]     # reset the environment    
+        states = env_info.vector_observations                  # get the current state (for each agent)
+        scores = np.zeros(num_agents)                          # initialize the score (for each agent)
+        start_time = time.time()
+        while True:
+            actions = agent.act(states, add_noise=False)         # select an action
+            env_info = env.step(actions)[brain_name]           # send all actions to tne environment
+            next_states = env_info.vector_observations         # get next state (for each agent)
+            rewards = env_info.rewards                         # get reward (for each agent)
+            dones = env_info.local_done                        # see if episode finished
+            scores += env_info.rewards                         # update the score (for each agent)
+            states = next_states                               # roll over states to next time step
+            if np.any(dones):                                  # exit loop if episode finished
+                break
+        duration = time.time() - start_time
+        mean_scores.append(np.mean(scores))
+        print('\rEpisode {} ({} sec)\tMean: {:.1f}'.format(\
+                i_episode, round(duration), mean_scores[-1]))        
+
+    return mean_scores
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
@@ -114,25 +134,6 @@ print('The state for the first agent looks like:', states[0])
 
 agent = Agent(state_size=state_size, action_size=action_size, random_seed=1)
 
+scores = ddpg_test()
 
-agent.actor_local.load_state_dict(torch.load('actor_ckpt.pth'))
-agent.critic_local.load_state_dict(torch.load('critic_ckpt.pth'))
-
-env_info = env.reset(train_mode=False)[brain_name]     # reset the environment    
-states = env_info.vector_observations                  # get the current state (for each agent)
-scores = np.zeros(num_agents)                          # initialize the score (for each agent)
-while True:
-    actions = agent.act(states, add_noise=False)         # select an action
-    env_info = env.step(actions)[brain_name]           # send all actions to tne environment
-    next_states = env_info.vector_observations         # get next state (for each agent)
-    rewards = env_info.rewards                         # get reward (for each agent)
-    dones = env_info.local_done                        # see if episode finished
-    scores += env_info.rewards                         # update the score (for each agent)
-    states = next_states                               # roll over states to next time step
-    if np.any(dones):                                  # exit loop if episode finished
-        break
-print('Total score (averaged over agents) this episode: {}'.format(np.mean(scores)))
-
-
-
-# scores, avgs = ddpg()
+print('Total score (averaged over agents) for 100 episodes: {}'.format(np.mean(scores)))
