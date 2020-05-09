@@ -1,0 +1,179 @@
+    1  sudo apt-get install build-essential 
+    2  cd /data/
+    3  mkdir Udacity
+    4  cd Udacity/
+    5  git clone https://github.com/udacity/deep-reinforcement-learning.git
+    6  sudo apt-get install git
+    7  . ~/Downloads/Anaconda3-2020.02-Linux-x86_64.sh 
+    8  chmod a+x ~/Downloads/Anaconda3-2020.02-Linux-x86_64.sh 
+    9  sudo ~/Downloads/Anaconda3-2020.02-Linux-x86_64.sh 
+   10  exit
+   11  conda create -n udacity
+   12  conda active udacity
+   13  conda activate udacity
+   14  conda install pytorch
+   15  ls
+   16  d:
+   17  cd /data/
+   18  ls
+   19  cd Udacity/
+   20  git clone https://github.com/openai/gym.git
+   21  cd gym/
+   22  pip install .
+   23  pip install .[all]
+   24  conda install tari-py
+   25  conda install atari-py
+   26  conda install ataripy
+   27  pip install atari-py
+   28  pip3 install atari-py
+   29  pip -version
+   30  pip --version
+   31  cd ..
+   32  git clone https://github.com/openai/atari-py.git
+   33  cd atari-py/
+   34  pip install -e .
+   35  sudo apt-get install cmake
+   36  pip install -e .
+   37  sudo apt-get install cmake
+   38  pip install -e .
+   39  pip install atari-py
+   40  pip install --upgrade setuptools
+   41  cd ..
+   42  cd gym/
+   43  pip install -e '.[all]'
+   44  pip install atary_py=0.2.0
+   45  pip install atary_py==0.2.0
+   46  pip install atary_py==0.2.2
+   47  pip install atary-py==0.2.2
+   48  conda create -n gym python=3.7
+   49  pip install .
+   50  pip install [all]~.
+   51  pip install .[all]
+   52  conda install zlib
+   53  sudo apt-get install zlib1g-dev 
+   54  conda install zlib
+   55  pip install .[all]
+   56  conda install cyphon
+   57  pip install Cython
+   58  conda install cyphon
+   59  pip install .[all]
+   60  conda install swig
+   61  pip install .[all]
+   62  pip install lockfile
+   63  pip install .[all]
+   64  cd ..
+   65  pip install jupyter
+   66  ls
+   67  cd ..
+   68  ls
+   69  cd Udacity/
+   70  git clone https://github.com/udacity/deep-reinforcement-learning.git
+   71  cd deep-reinforcement-learning/
+   72  ls
+   73  jupyter notebook
+   74  pip install matplotlib
+   75  jupyter notebook
+   76  exit
+   77  lshw
+   78  sudo apt-get install cpu-g 
+   79  sudo lspci -v -s 00:02.0
+   80  sudo apt-get install hardinfo
+   81  hardinfo 
+   82  sudo apt-get install vulkan-tools 
+   83  sudo apt-get install vulkan-utils 
+   84  vulkaninfo 
+   85  sudo apt install mesa-vulkan-drivers
+   86  apt list *vulkan*
+   87  sudo apt-get install ~/Downloads/steam_latest.deb 
+   88  sudo dpkg -i ~/Downloads/steam_latest.deb 
+   89  sudo apt-get install curl
+   90  sudo dpkg -i ~/Downloads/steam_latest.deb 
+   91  df -h
+   92  sudo apt-get install libgtk2.0-0:i386 libsdl2-2.0-0:i386 libsdl2-image-2.0-0:i386 gtk2-engines-murrine:i386 libatk-adaptor:i386 
+   93  hardinfo 
+   94  chmod a+x ~/Downloads/GOG_Galaxy_The_Witcher_2_Assassins_of_Kings_Enhanced_Edition.exe 
+   95  chmod a+x ~/Downloads/the_witcher_2_assassins_of_kings_enhanced_edition_en_release_3_20150306204412_20992.sh 
+   96  ~/Downloads/the_witcher_2_assassins_of_kings_enhanced_edition_en_release_3_20150306204412_20992.sh 
+   97  top
+   98  ls
+   99  cd /data/games/Witcher1/
+  100  ls
+  101  cd ..
+  102  cd The\ Witcher\ 2\ Assassins\ Of\ Kings\ Enhanced\ Edition/
+  103  ls
+  104  ./start.sh 
+  105  sudo apt-get install libudev1:i386
+  106  ./start.sh 
+  107  ps -efa
+  108  ./start.sh 
+  109  hardinfo 
+  110  ssh susanna@192.168.100.169
+  111  conda env list
+  112  conda activate udacity
+  113  ls
+  114  git clone https://github.com/SusannaMaria/DRLND_P2_ContinuousControl.git
+  115  ls
+  116  cd DRLND_P2_ContinuousControl/
+  117  ls
+  118  cd ..
+  119  git clone https://github.com/udacity/deep-reinforcement-learning.git
+  120  cd deep-reinforcement-learning/
+  121  ls
+  122  cd p2_continuous-control/
+  123  ls
+  124  cp README.md ~/DRLND_P2_ContinuousControl/
+  125  sudo dpkg -i ~/Downloads/code_1.45.0-1588868285_amd64
+  126  sudo dpkg -i ~/Downloads/code_1.45.0-1588868285_amd64.deb 
+  127  ls
+  128  wget https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher.app.zip
+  129  unzip Reacher.app.zip 
+  130  wget https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Linux.zip
+  131  ls
+  132  rm -rf Reacher.app
+  133  rm -rf Reacher.app.zip 
+  134  unzip Reacher_Linux.zip 
+  135  ls
+  136  mv Reacher_Linux Reacher_Linux_20
+  137  wget https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Linux.zip
+  138  ls
+  139  unzip Reacher_Linux.zip.1
+  140  ls
+  141  rm Reacher_Linux.zip
+  142  rm Reacher_Linux.zip.1 
+  143  ls
+  144  mv Reacher_Linux Reacher_Linux_One
+  145  ls -la
+  146  mc
+  147  sudo apt-get install mc
+  148  mc
+  149  ls
+  150  cd cd ..
+  151  cd ..
+  152  cd DRLND_P2_ContinuousControl/
+  153  ls
+  154  mc
+  155  cd ../deep-reinforcement-learning/
+  156  ls
+  157  cd python/
+  158  ls
+  159  pip install .
+  160  nano README.md 
+  161  conda create -n drlnd python=3.6
+  162  conda activate drlnd
+  163  ls
+  164  pip install .
+  165  ls
+  166  cd ..
+  167  ls
+  168  git clone https://github.com/openai/gym.git
+  169  cd gym/
+  170  ls
+  171  pip install .
+  172  pip install .[all]
+  173  cd ..
+  174  ls
+  175  cd DRLND_P2_ContinuousControl/
+  176  ls
+  177  python3 MContinuous_Control.py 
+  178  history
+  179  history > install.txt

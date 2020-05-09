@@ -81,8 +81,8 @@ def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=1
     return mean_scores, moving_avgs
 
 def ddpg_test(n_episodes=100):
-    agent.actor_local.load_state_dict(torch.load('trained/actor_ckpt.pth'))
-    agent.critic_local.load_state_dict(torch.load('trained/critic_ckpt.pth'))
+    agent.actor_local.load_state_dict(torch.load('trained/actor_ckpt.pth', map_location=lambda storage, loc: storage))
+    agent.critic_local.load_state_dict(torch.load('trained/critic_ckpt.pth', map_location=lambda storage, loc: storage))
     mean_scores = [] 
 
     for i_episode in range(1, n_episodes+1):
