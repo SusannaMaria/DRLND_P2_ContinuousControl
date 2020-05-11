@@ -3,7 +3,7 @@ import random
 import copy
 from collections import namedtuple, deque
 
-from model import Actor, Critic
+from model_td3 import Actor, Critic
 import torch.nn as nn
 import torch
 from torch.autograd import Variable
@@ -103,14 +103,16 @@ class Agent():
 		# ---------------------------- update critic ---------------------------- #
 		# Get predicted next-state actions and Q values from target models
 		actions_next = self.actor_target(next_states)
-		Q_targets_next = self.critic_target(next_states, actions_next)
+		Q_targets_next1, Q_targets_next2 = self.critic_target(next_states, actions_next)
+		Q_targets_next = torch.min(Q_targets_next1, Q_targets_next2)
+
 		# Compute Q targets for current states (y_i)
 		Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 		# Compute critic loss
-		Q_expected = self.critic_local(states, actions)
+		Q_expected1, Q_expected2 = self.critic_local(states, actions)
 
 
-		critic_loss = F.mse_loss(Q_expected, Q_targets)
+		critic_loss = F.mse_loss(Q_expected1, Q_targets)+F.mse_loss(Q_expected2, Q_targets)
 
 		# Minimize the loss
 		self.critic_optimizer.zero_grad()
@@ -121,7 +123,8 @@ class Agent():
 		# ---------------------------- update actor ---------------------------- #
 		# Compute actor loss
 		actions_pred = self.actor_local(states)
-		actor_loss = -self.critic_local(states, actions_pred).mean()
+		
+		actor_loss = -self.critic_local.Q1(states, actions_pred).mean()
 		# Minimize the loss
 		self.actor_optimizer.zero_grad()
 		actor_loss.backward()
@@ -213,49 +216,4 @@ class ReplayBuffer:
 		"""Return the current size of internal memory."""
 		return len(self.memory)
 
-class PERBuffer:
-	"""Fixed-size buffer to store experience tuples."""
-
-	def __init__(self, action_size, buffer_size, batch_size, seed):
-		"""Initialize a ReplayBuffer object.
-		Params
-		======
-			buffer_size (int): maximum size of buffer
-			batch_size (int): size of each training batch
-		"""
-		self.action_size = action_size
-		
-		#self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
-		self.batch_size = batch_size
-		self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
-		self.memory = PriorExpReplay(buffer_size, self.experience)
-
-		self.seed = random.seed(seed)
-		self.memory_counter=0
-		self.tree_idx=-1
-		self.b_weights=-1
-
-
-	def add(self, state, action, reward, next_state, done):
-		"""Add a new experience to memory."""
-		e = self.experience(state, action, reward, next_state, done)
-		self.memory.store(e)
-		self.memory_counter+=1
-
-	def sample(self):
-		"""Randomly sample a batch of experiences from memory."""
-		self.tree_idx, experiences, ISWeights = self.memory.sample(self.batch_size, self.memory_counter)
-		self.b_weights = Variable(torch.FloatTensor(ISWeights))        
-
-		states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
-		actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).float().to(device)
-		rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
-		next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(device)
-		dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
-
-		return (states, actions, rewards, next_states, dones)
-
-	def __len__(self):
-		"""Return the current size of internal memory."""
-		return len(self.memory.tree.data)
 

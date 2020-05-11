@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from ddpg_agent import Agent
 from collections import deque
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 import time
 import torch
+import pandas as pd
 from unityagents import UnityEnvironment
-
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=100, print_every=1,
+def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=5, print_every=1,
          actor_path='actor_ckpt.pth', critic_path='critic_ckpt.pth'):
     """Deep Deterministic Policy Gradient (DDPG)
     
@@ -34,7 +35,9 @@ def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=1
     best_score = -np.inf
     scores_window = deque(maxlen=consec_episodes)  # mean scores from most recent episodes
     moving_avgs = []                               # list of moving averages
-    
+    train_mode=True
+    df = pd.DataFrame(columns=['episode', 'score', 'min', 'max', 'std', 'mean'])
+
     for i_episode in range(1, n_episodes+1):
         env_info = env.reset(train_mode=True)[brain_name] # reset environment
         states = env_info.vector_observations                   # get current state for each agent      
@@ -64,7 +67,12 @@ def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=1
         mean_scores.append(np.mean(scores))           # save mean score for the episode
         scores_window.append(mean_scores[-1])         # save mean score to window
         moving_avgs.append(np.mean(scores_window))    # save moving average
-                
+
+        df.loc[i_episode-1] = [i_episode] + list([scores, np.min(scores),
+                                                  np.max(scores),
+                                                  np.std(scores),
+                                                  np.mean(scores)])
+
         if i_episode % print_every == 0:
             print('\rEpisode {} ({} sec)  -- \tMin: {:.1f}\tMax: {:.1f}\tMean: {:.1f}\tMov. Avg: {:.1f}'.format(\
                   i_episode, round(duration), min_scores[-1], max_scores[-1], mean_scores[-1], moving_avgs[-1]))
@@ -72,7 +80,7 @@ def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=1
         if train_mode and mean_scores[-1] > best_score:
             torch.save(agent.actor_local.state_dict(), actor_path)
             torch.save(agent.critic_local.state_dict(), critic_path)
-                  
+
         if moving_avgs[-1] >= solved_score and i_episode >= consec_episodes:
             print('\nEnvironment SOLVED in {} episodes!\tMoving Average ={:.1f} over last {} episodes'.format(\
                                     i_episode-consec_episodes, moving_avgs[-1], consec_episodes))            
@@ -81,7 +89,22 @@ def ddpg_train(n_episodes=500, max_t=10000, solved_score=30.0, consec_episodes=1
                 torch.save(agent.critic_local.state_dict(), critic_path)  
             break
             
-    return mean_scores, moving_avgs
+    return df
+
+def plot_minmax(df):
+    """Print min max plot of DQN Agent analytics
+
+    Params
+    ======
+        df :    Dataframe with scores
+    """   
+    ax  = df.plot(x='episode', y='mean')
+    plt.fill_between(x='episode',y1='min',y2='max',color='lightgrey', data=df)
+    x_coordinates = [0, 150]
+    y_coordinates = [30, 30]
+    plt.plot(x_coordinates, y_coordinates, color='red')    
+    plt.show()
+
 
 def ddpg_test(n_episodes=100):
     if torch.cuda.is_available():
@@ -117,6 +140,14 @@ def ddpg_test(n_episodes=100):
     return mean_scores
 
 
+td3 = True
+
+if td3:
+    from td3_agent import Agent
+else:
+    from ddpg_agent import Agent
+    
+
 
 env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
 #env = UnityEnvironment(file_name='Reacher_Linux_One/Reacher.x86_64')
@@ -143,6 +174,7 @@ print('The state for the first agent looks like:', states[0])
 
 agent = Agent(state_size=state_size, action_size=action_size, random_seed=1)
 
-scores = ddpg_test()
+#scores = ddpg_test()
+plot_minmax(ddpg_train())
+#print('Total score (averaged over agents) for 100 episodes: {}'.format(np.mean(scores)))
 
-print('Total score (averaged over agents) for 100 episodes: {}'.format(np.mean(scores)))
