@@ -13,7 +13,7 @@ import torch.optim as optim
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class Agent():
+class AgentTD3():
     """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, random_seed, cfg):
@@ -25,6 +25,7 @@ class Agent():
                 action_size (int): dimension of each action
                 random_seed (int): random seed
         """
+        self.name = "td3"
         self.cfg = cfg
         self.state_size = state_size
         self.action_size = action_size

@@ -10,11 +10,14 @@ import pandas as pd
 from unityagents import UnityEnvironment
 from types import SimpleNamespace
 import configparser
+from td3_agent import AgentTD3
+from ddpg_agent import AgentDDPG
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def ddpg_train(cfg,
+def ddpg_train(agent, cfg,
                print_every=1, actor_path='actor_ckpt.pth',
                critic_path='critic_ckpt.pth'):
     """Deep Deterministic Policy Gradient (DDPG)
@@ -98,16 +101,22 @@ def ddpg_train(cfg,
             print('\rEpisode {} ({} sec)  -- \tMin: {:.1f}\tMax: {:.1f}\tMean: {:.1f}\tMov. Avg: {:.1f}'.format(
                   i_episode, round(duration), min_scores[-1], max_scores[-1], mean_scores[-1], moving_avgs[-1]))
 
-        if train_mode and mean_scores[-1] > best_score:
-            torch.save(agent.actor_local.state_dict(), actor_path)
-            torch.save(agent.critic_local.state_dict(), critic_path)
+        if train_mode and i_episode % 10 == 0:
+            epi_str = "{:03}".format(i_episode)
+            torch.save(agent.actor_local.state_dict(),
+                       agent.name+"_"+epi_str+"_"+actor_path)
+            torch.save(agent.critic_local.state_dict(),
+                       agent.name+"_"+epi_str+"_"+critic_path)
+            best_score = mean_scores[-1]
 
-        if moving_avgs[-1] >= solved_score and i_episode >= consec_episodes:
+        if i_episode >= consec_episodes:
             print('\nEnvironment SOLVED in {} episodes!\tMoving Average ={:.1f} over last {} episodes'.format(
                 i_episode-consec_episodes, moving_avgs[-1], consec_episodes))
             if train_mode:
-                torch.save(agent.actor_local.state_dict(), actor_path)
-                torch.save(agent.critic_local.state_dict(), critic_path)
+                torch.save(agent.actor_local.state_dict(),
+                           agent.name+"_final_"+actor_path)
+                torch.save(agent.critic_local.state_dict(),
+                           agent.name+"_final_"+critic_path)
             break
 
     return df
@@ -129,21 +138,21 @@ def plot_minmax(df):
     plt.show()
 
 
-def ddpg_test(n_episodes=100):
+def ddpg_test(agent, n_episodes=100):
     if torch.cuda.is_available():
-        agent.actor_local.load_state_dict(torch.load('trained/actor_ckpt.pth'))
+        agent.actor_local.load_state_dict(torch.load('actor_ckpt.pth'))
         agent.critic_local.load_state_dict(
-            torch.load('trained/critic_ckpt.pth'))
+            torch.load('critic_ckpt.pth'))
     else:
         agent.actor_local.load_state_dict(torch.load(
-            'trained/actor_ckpt.pth', map_location=lambda storage, loc: storage))
+            'actor_ckpt.pth', map_location=lambda storage, loc: storage))
         agent.critic_local.load_state_dict(torch.load(
-            'trained/critic_ckpt.pth', map_location=lambda storage, loc: storage))
+            'critic_ckpt.pth', map_location=lambda storage, loc: storage))
 
     mean_scores = []
 
     for i_episode in range(1, n_episodes+1):
-        env_info = env.reset(train_mode=True)[
+        env_info = env.reset(train_mode=False)[
             brain_name]     # reset the environment
         # get the current state (for each agent)
         states = env_info.vector_observations
@@ -161,7 +170,7 @@ def ddpg_test(n_episodes=100):
             rewards = env_info.rewards
             dones = env_info.local_done                        # see if episode finished
             # update the score (for each agent)
-            scores += env_info.rewards
+            scores += rewards
             # roll over states to next time step
             states = next_states
             if np.any(dones):                                  # exit loop if episode finished
@@ -176,12 +185,8 @@ def ddpg_test(n_episodes=100):
 
 td3 = True
 
-if td3:
-    from td3_agent import Agent
-else:
-    from ddpg_agent import Agent
 
-
+#env = UnityEnvironment(file_name='Crawler_Linux/Crawler.x86_64')
 env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
 #env = UnityEnvironment(file_name='Reacher_Linux_One/Reacher.x86_64')
 # get the default brain
@@ -209,21 +214,42 @@ print('The state for the first agent looks like:', states[0])
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-agent_cfg = config['td3']
+agent_cfg_ddpg = config['ddpg']
+metadata_ddpg = dict(config.items('ddpg'))
 
 
-agent = Agent(state_size=state_size, action_size=action_size,
-              random_seed=1, cfg=agent_cfg)
+agent_ddpg = AgentDDPG(state_size=state_size, action_size=action_size,
+                       random_seed=1, cfg=agent_cfg_ddpg)
 
-df = ddpg_train(agent_cfg)
+# Train
+df = ddpg_train(agent_ddpg, agent_cfg_ddpg)
 
-store = pd.HDFStore('data.hdf5')
+filename = 'data_ddpg.hdf5'
+store = pd.HDFStore(filename)
 store.put('dataset_01', df)
-metadata = dict(config.items('td3'))
-store.get_storer('dataset_01').attrs.metadata = metadata
+store.get_storer('dataset_01').attrs.metadata = metadata_ddpg
 store.close()
 
-plot_minmax(df)
+env_info = env.reset(train_mode=True)[brain_name]
 
-#scores = ddpg_test()
+
+agent_cfg_td3 = config['td3']
+metadata_td3 = dict(config.items('td3'))
+
+agent_td3 = AgentTD3(state_size=state_size, action_size=action_size,
+                     random_seed=1, cfg=agent_cfg_td3)
+
+# Train
+df = ddpg_train(agent_td3, agent_cfg_td3)
+
+filename = 'data_td3.hdf5'
+store = pd.HDFStore(filename)
+store.put('dataset_01', df)
+store.get_storer('dataset_01').attrs.metadata = metadata_td3
+store.close()
+env.close()
+
+# plot_minmax(df)
+
+# scores = ddpg_test()
 #print('Total score (averaged over agents) for 100 episodes: {}'.format(np.mean(scores)))

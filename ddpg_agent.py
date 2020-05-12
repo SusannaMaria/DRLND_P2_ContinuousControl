@@ -13,7 +13,7 @@ import torch.optim as optim
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class Agent():
+class AgentDDPG():
     """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, random_seed, cfg):
@@ -25,6 +25,7 @@ class Agent():
                 action_size (int): dimension of each action
                 random_seed (int): random seed
         """
+        self.name = "ddpg"
         self.cfg = cfg
         self.state_size = state_size
         self.action_size = action_size
@@ -63,7 +64,7 @@ class Agent():
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn at defined interval, if enough samples are available in memory
-        if len(self.memory) > self.cfg['BATCH_SIZE'] and timestep % int(self.cfg['LEARN_EVERY']) == 0:
+        if len(self.memory) > int(self.cfg['BATCH_SIZE']) and timestep % int(self.cfg['LEARN_EVERY']) == 0:
             for _ in range(int(self.cfg['LEARN_NUM'])):
                 experiences = self.memory.sample()
                 self.learn(experiences, float(self.cfg['GAMMA']))
