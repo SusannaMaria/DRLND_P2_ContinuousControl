@@ -45,6 +45,25 @@ def plot_minmax(dfs):
     y_coordinates = [30, 30]
     plt.plot(x_coordinates, y_coordinates, color='red',linestyle='--')
 
+def plot_minmax2(df):
+    """Print min max plot of DQN Agent analytics
+
+    Params
+    ======
+        df :    Dataframe with scores
+    """
+    # , color=scalarMap.to_rgba(coln)
+    ax = df.plot(x='episode', y='mean', label='ddpg', color='red', alpha=0.7 )
+    df.plot(ax=ax, x='episode', y='std', label='std ddpg', color='grey', alpha=0.7)
+    plt.fill_between(x='episode', y1='min', y2='max',
+                        data=df, color='indianred', alpha=0.7)
+
+    x_coordinates = [0, 150]
+    y_coordinates = [30, 30]
+    plt.plot(x_coordinates, y_coordinates, color='red',linestyle='--')
+
+
+
 
 
 def h5store(filename, df, **kwargs):
@@ -68,5 +87,35 @@ def h5load(filenames):
 
     plt.show()
 
-filenames = ['data_ddpg.hdf5','data_td3.hdf5']
-h5load(filenames)
+def h5load2(filenames):
+    datas =[]
+    df = pd.DataFrame(columns=['episode', 'duration',
+                               'min', 'max', 'std', 'mean'])
+    for fn in filenames:
+        with pd.HDFStore(fn) as store:
+            i_episode = 0
+            for s in store.keys():
+                data = store[s]
+                metadata = store.get_storer(s).attrs.metadata
+                mean = data["mean"].mean()
+                minv = data["min"].mean()
+                maxv = data["max"].mean()
+                std = data["std"].mean()
+                dur = data["duration"].mean()
+
+                episode = int(s.replace("/dataset_", ""))
+                df.loc[i_episode] = [episode] + list([dur, minv, maxv, std, mean])
+                i_episode+=1     
+                print(int(episode))
+                #print(data)
+                #print(metadata)
+    plot_minmax2(df)
+
+    plt.show()
+
+
+# filenames = ['data_ddpg.hdf5','data_td3.hdf5']
+# h5load(filenames)
+
+filenames = ['test_td3.hdf5']
+h5load2(filenames)
