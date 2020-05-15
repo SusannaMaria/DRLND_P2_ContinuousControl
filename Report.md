@@ -37,7 +37,7 @@ https://towardsdatascience.com/td3-learning-to-run-with-ai-40dfc512f93
 **Delayed update of Target and Policy Networks:** To reduce the variance, TD3 updates the policy at a lower frequency than the Q-function. The policy network stays the same until the value error is small enough after several updates. 
 
 # TD3 vs DDPG
-![](static/performance.png)
+
 
 # Model
 Model parameters like dimensions were taken from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/model.py and showed a good performance. I have created an export of the networks via https://github.com/szagoruyko/pytorchviz
@@ -48,14 +48,22 @@ Model parameters like dimensions were taken from https://github.com/udacity/deep
 ![](static/td3_model.png)
 
 # Training
+The training for DDPG and TD3 was done on an AMD Ryzen 5 3600 6-core processor with Nvidia GTX1060 GPU. TD3 spent significantly more time training. TD3 spent significantly more time training. About 20%. 
 
-N_EPISODES = 150
-MAX_T = 10000
-SOLVED_SCORE = 30
-SAVE_N_EPISODES = 5
-CKPT_PATH = trained_test
+![](static/duration.png)
+
+TD3 showed a better performance in training and in the test and no drastic drop or even a collapse of the training result after 70 episodes.
+
+![](static/performance.png)
 
 
+Used Parameter for training:
+Parameter | Value | Info
+--- | --- | ---
+N_EPISODES | 150 |
+MAX_T | 10000 | 
+SOLVED_SCORE | 30 |
+SAVE_N_EPISODES | 5 |
 
 # Hyperparamters
 Hyperparameter | Value | Info

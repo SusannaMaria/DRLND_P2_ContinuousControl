@@ -18,6 +18,24 @@ sorted_names = [name for hsv, name in by_hsv]
 
 print(sorted_names)
 
+
+def plot_duration(dfs):
+    """Print min max plot of DQN Agent analytics
+
+    Params
+    ======
+        df :    Dataframe with scores
+    """
+    coln=15
+    for df in dfs:
+        if coln==15:
+            # , color=scalarMap.to_rgba(coln)
+            ax = df.plot(x='episode', y='duration', label='duration ddpg', color= 'red', alpha=0.7)
+        else:
+            df.plot(ax=ax, x='episode', y='duration', label='duration td3', color= 'green', alpha=0.7)
+    
+        coln = coln + 2
+
 def plot_minmax(dfs):
     """Print min max plot of DQN Agent analytics
 
@@ -84,6 +102,7 @@ def h5load(filenames):
                 print(data)
                 print(metadata)
     plot_minmax(datas)
+    plot_duration(datas)
 
     plt.show()
 
@@ -114,8 +133,8 @@ def h5load2(filenames):
     plt.show()
 
 
-# filenames = ['data_ddpg.hdf5','data_td3.hdf5']
-# h5load(filenames)
+filenames = ['dataset/data_ddpg.hdf5','dataset/data_td3.hdf5']
+h5load(filenames)
 
-filenames = ['test_td3.hdf5']
-h5load2(filenames)
+# filenames = ['test_td3.hdf5']
+# h5load2(filenames)
