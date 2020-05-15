@@ -2,6 +2,7 @@ import numpy as np
 import random
 import copy
 from collections import namedtuple, deque
+import configparser
 
 from model import Actor, Critic
 import torch.nn as nn
@@ -16,7 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class AgentDDPG():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, random_seed, cfg):
+    def __init__(self, state_size, action_size, random_seed, cfg_path):
         """Initialize an Agent object.
 
         Params
@@ -26,7 +27,10 @@ class AgentDDPG():
                 random_seed (int): random seed
         """
         self.name = "ddpg"
-        self.cfg = cfg
+        config = configparser.ConfigParser()
+        config.read(cfg_path)
+        self.cfg = config[self.name]
+        self.cfg_items = dict(config.items(self.name))
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)

@@ -9,6 +9,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
 import torch.optim as optim
+import configparser
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -16,7 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class AgentTD3():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, random_seed, cfg):
+    def __init__(self, state_size, action_size, random_seed, cfg_path):
         """Initialize an Agent object.
 
         Params
@@ -25,8 +26,11 @@ class AgentTD3():
                 action_size (int): dimension of each action
                 random_seed (int): random seed
         """
+
         self.name = "td3"
-        self.cfg = cfg
+        self.config_obj = configparser.ConfigParser()
+        self.config_obj.read(cfg_path)
+        self.cfg = self.config_obj[self.name]
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
