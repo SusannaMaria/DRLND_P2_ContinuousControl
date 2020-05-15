@@ -94,3 +94,4 @@ EPSILON | 1.0 | explore->exploit noise process added to act step
 EPSILON_DECAY  | 0.000001 | decay rate for noise process
 
 # Ideas for Future Work
+So far I am very satisfied with the performance of the trained agent. I will use the submitted solution TD3-agent and model to train against the crawler challenge. And if successful I will provide the results and trained network within this repository. 
