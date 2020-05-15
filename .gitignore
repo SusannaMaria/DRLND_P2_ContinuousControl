@@ -4,3 +4,8 @@ Reacher_Linux_20
 Reacher_Linux_One
 Crawler_Linux
 __pycache__
+static/ddpg_actor_model
+static/ddpg_critic_model
+static/td3_actor_model
+static/td3_critic_model
+.vscode/settings.json
