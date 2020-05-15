@@ -1,16 +1,33 @@
 # Introduction
 # Implementation
-My implementation is based on https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/ddpg_agent.py and the explanation regarding the benchmark implementation.  
+After the benchmark description, I decided to use the DDPG (Deep Deterministic Policy Gradient) algorithm and trained for 150 episodes using the hyper parameters as described in the udacity DRLND repository but with the replay buffer adjusted to 1e6. My implementation is based mostly on https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/ddpg_agent.py. 
 
-![](static/ac.jpg)
+The performance of the agent was good, which achieved the described behaviour of the benchmark implementation, but spiked downward. The spread also looked much too wide to me.
+![](static/ddpg_performance.png)
+
+After researching the optimization of the hyper parameters, I came across the successor of DDPG, the TD3 (Twin Delayed Deep Deterministic Policy Gradients) algorithm. I decided to use the TD3 too and adopted the hyper parameters already selected.
+
+TD3 showed a better performance in training and in the test and no drastic drop or even a collapse of the training result after 70 episodes.
+
+![](static/performance.png)
+
+
+For the training and the following evaluation I decided to write the statistics in panda dataframes and then in a hdf5 date. I was able to dive a little bit into the use of these frameworks.
+
+The hyper parameters have been moved to a separate file: [config.ini](config.ini)
+
+Implementation was done in python files and for submission of the project I transferred it into a jupyter notebook.
 
 ## Summary *Actor Critics* Model
 The basic idea is to divide the model into two parts: one to calculate an action based on a state and another to generate the Q values of the action. The actor takes the state as the input and output of the best action. It essentially controls how the actor behaves by learning the optimal (policy-based) policy. The critic, on the other hand, evaluates the action by calculating the value function (value-based). These two models participate in the job in which they both improve over time in their own roles. The result is that the overall architecture learns to solve the task more efficiently than the two methods alone. 
 source: https://theaisummer.com/Actor_critics/
 
-# Improvements in DDPG( Deep Deterministic Policy Gradient )
+![](static/ac.jpg)
+
+# Improvements in DDPG
 Paper: https://arxiv.org/pdf/1509.02971.pdf 
 
+My Agent implementation: [ddpg_agent.py](ddpg_agent.py). 
 It was very helpful to study https://towardsdatascience.com/deep-deterministic-policy-gradients-explained-2d94655a9b7b
 
 ![](static/ddpg.png)
@@ -24,6 +41,7 @@ It was very helpful to study https://towardsdatascience.com/deep-deterministic-p
 # Improvements using TD3
 Paper:https://arxiv.org/pdf/1802.09477.pdf
 
+My Agent implementation: [td3_agent.py](ddpg_agent.py). 
 After some research I found TD3 as a successor to the previously predicted best solution DDPG. I was able to introduce the small adaptations easily after studying.
 
 https://towardsdatascience.com/td3-learning-to-run-with-ai-40dfc512f93
@@ -36,9 +54,6 @@ https://towardsdatascience.com/td3-learning-to-run-with-ai-40dfc512f93
 
 **Delayed update of Target and Policy Networks:** To reduce the variance, TD3 updates the policy at a lower frequency than the Q-function. The policy network stays the same until the value error is small enough after several updates. 
 
-# TD3 vs DDPG
-
-
 # Model
 Model parameters like dimensions were taken from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/model.py and showed a good performance. I have created an export of the networks via https://github.com/szagoruyko/pytorchviz
 ## DDPG
@@ -47,23 +62,19 @@ Model parameters like dimensions were taken from https://github.com/udacity/deep
 ## TD3
 ![](static/td3_model.png)
 
-# Training
-The training for DDPG and TD3 was done on an AMD Ryzen 5 3600 6-core processor with Nvidia GTX1060 GPU. TD3 spent significantly more time training. TD3 spent significantly more time training. About 20%. 
+# Training speed
+The training for DDPG and TD3 was done on an AMD Ryzen 5 3600 6-core processor with Nvidia GTX1060 GPU. TD3 spent significantly more time training. About 20%. 
 
 ![](static/duration.png)
 
-TD3 showed a better performance in training and in the test and no drastic drop or even a collapse of the training result after 70 episodes.
-
-![](static/performance.png)
-
 
 Used Parameter for training:
-Parameter | Value | Info
---- | --- | ---
-N_EPISODES | 150 |
-MAX_T | 10000 | 
-SOLVED_SCORE | 30 |
-SAVE_N_EPISODES | 5 |
+Parameter | Value 
+--- | --- 
+N_EPISODES | 150  
+MAX_T | 10000 
+SOLVED_SCORE | 30
+SAVE_N_EPISODES | 5
 
 # Hyperparamters
 Hyperparameter | Value | Info
