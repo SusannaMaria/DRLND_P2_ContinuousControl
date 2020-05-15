@@ -42,7 +42,7 @@ It was very helpful to study https://towardsdatascience.com/deep-deterministic-p
 Paper:https://arxiv.org/pdf/1802.09477.pdf
 
 My Agent implementation: [td3_agent.py](ddpg_agent.py). 
-After some research I found TD3 as a successor to the previously predicted best solution DDPG. I was able to introduce the small adaptations easily after studying.
+After some research I found TD3 as a successor to the previously predicted best solution DDPG. I was able to introduce the small adaptations easily after studying. as you can see in the model graph, TD3 learns two Q-functions instead of one (hence “twin”), and uses the smaller of the two Q-values to form the targets in the Bellman error loss functions. source: https://spinningup.openai.com/en/latest/algorithms/td3.html
 
 https://towardsdatascience.com/td3-learning-to-run-with-ai-40dfc512f93
 
