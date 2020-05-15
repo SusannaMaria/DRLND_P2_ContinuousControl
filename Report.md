@@ -42,17 +42,10 @@ https://towardsdatascience.com/td3-learning-to-run-with-ai-40dfc512f93
 # Model
 Model parameters like dimensions were taken from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/model.py and showed a good performance. I have created an export of the networks via https://github.com/szagoruyko/pytorchviz
 ## DDPG
-### Actor
-![](static/ddpg_actor_model.png | width=300)
-### Critic
-![](static/ddpg_critic_model.png | width=300)
+![](static/ddpg_model.png)
 
 ## TD3
-### Actor
-![](static/td3_actor_model.png | width=300)
-### Critic
-![](static/td3_critic_model.png | width=300)
-
+![](static/td3_model.png)
 
 # Training
 
