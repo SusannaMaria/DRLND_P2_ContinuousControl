@@ -11,7 +11,7 @@ from types import SimpleNamespace
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def actor_critic_train(env, agent, cfg,
+def actor_critic_train(env, agent, cfg, brain_name, num_agents,
                        print_every=1):
     """Deep Deterministic Policy Gradient (DDPG)
 
@@ -25,7 +25,6 @@ def actor_critic_train(env, agent, cfg,
     n_episodes = int(cfg['N_EPISODES'])
     max_t = int(cfg['MAX_T'])
     save_n_episodes = int(cfg['SAVE_N_EPISODES'])
-
 
     # list of mean scores from each episode
     mean_scores = []
@@ -56,8 +55,12 @@ def actor_critic_train(env, agent, cfg,
             # see if episode has finished
             dones = env_info.local_done
 
-            # save experience to replay buffer, perform learning step at defined interval
-            for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
+            # save experience to replay buffer, perform learning step at
+            # defined interval
+            for state, action, reward, next_state, done in zip(states, actions,
+                                                               rewards,
+                                                               next_states,
+                                                               dones):
                 agent.step(state, action, reward, next_state, done, t)
 
             states = next_states
@@ -91,7 +94,6 @@ def actor_critic_train(env, agent, cfg,
                        agent.name+"_"+epi_str+"_actor_ckpt.pth")
             torch.save(agent.critic_local.state_dict(),
                        agent.name+"_"+epi_str+"_critic_ckpt.pth")
-            break
     
     torch.save(agent.actor_local.state_dict(),
                agent.name+"_final_actor_ckpt.pth")
@@ -105,11 +107,33 @@ def actor_critic_test(env, agent, cfg, ckpt, n_episodes=100):
     df = pd.DataFrame(columns=['episode', 'duration',
                                'min', 'max', 'std', 'mean'])
 
+    brain_name = env.brain_names[0]
+    brain = env.brains[brain_name]
+
+    # reset the environment
+    env_info = env.reset(train_mode=True)[brain_name]
+
+    # number of agents
+    num_agents = len(env_info.agents)
+    print('Number of agents:', num_agents)
+
+    # size of each action
+    action_size = brain.vector_action_space_size
+    print('Size of each action:', action_size)
+
+    # examine the state space
+    states = env_info.vector_observations
+    state_size = states.shape[1]
+
+    print('There are {} agents. Each observes a state with length: {}'.format(
+        states.shape[0], state_size))
+    print('The state for the first agent looks like:', states[0])
+
     ckpt_path = cfg['CKPT_PATH']
     actor_path = '{}/{}_{}_actor_ckpt.pth'.format(ckpt_path, agent.name, ckpt)
     critic_path = '{}/{}_{}_critic_ckpt.pth'.format(ckpt_path, agent.name, ckpt)
     if not os.path.exists(actor_path) or not os.path.exists(critic_path):
-        print("Checkpoint(s) not found: {},{}".format(actor_path, critic_path)
+        print("Checkpoint(s) not found: {},{}".format(actor_path, critic_path))
         return df
 
     if torch.cuda.is_available():

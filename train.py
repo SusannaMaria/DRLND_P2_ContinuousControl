@@ -24,6 +24,7 @@ def plot_train(df):
 env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
 #env = UnityEnvironment(file_name='Reacher_Linux_One/Reacher.x86_64')
 # get the default brain
+
 brain_name = env.brain_names[0]
 brain = env.brains[brain_name]
 
@@ -51,7 +52,7 @@ agent = AgentDDPG(state_size=state_size, action_size=action_size,
 
 
 # Train
-df = actor_critic_train(env, agent, agent.cfg)
+df = actor_critic_train(env, agent, agent.cfg, brain_name, num_agents)
 metadata = agent.cfg_items
 filename = 'data_{}.hdf5'.format(agent.name)
 store = pd.HDFStore(filename)
