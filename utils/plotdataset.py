@@ -133,8 +133,8 @@ def h5load2(filenames):
     plt.show()
 
 
-filenames = ['../dataset/data_ddpg.hdf5']
-h5load(filenames)
+# filenames = ['../dataset/data_ddpg.hdf5']
+# h5load(filenames)
 
-# filenames = ['test_td3.hdf5']
-# h5load2(filenames)
+filenames = ['../test_td3.hdf5']
+h5load2(filenames)

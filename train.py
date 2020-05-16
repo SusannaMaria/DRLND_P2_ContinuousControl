@@ -20,8 +20,8 @@ def plot_train(df):
     plt.plot(x_coordinates, y_coordinates, color='red')
     plt.show()
 
-#env = UnityEnvironment(file_name='Crawler_Linux/Crawler.x86_64')
-env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
+env = UnityEnvironment(file_name='Crawler_Linux/Crawler.x86_64')
+#env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
 #env = UnityEnvironment(file_name='Reacher_Linux_One/Reacher.x86_64')
 # get the default brain
 
@@ -47,7 +47,7 @@ print('There are {} agents. Each observes a state with length: {}'.format(
     states.shape[0], state_size))
 print('The state for the first agent looks like:', states[0])
 
-agent = AgentDDPG(state_size=state_size, action_size=action_size,
+agent = AgentTD3(state_size=state_size, action_size=action_size,
                   random_seed=1, cfg_path="config.ini")
 
 

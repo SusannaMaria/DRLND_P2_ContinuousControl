@@ -7,6 +7,8 @@ import pandas as pd
 from unityagents import UnityEnvironment
 from types import SimpleNamespace
 import configparser
+from actor_critic_ctl import actor_critic_train, actor_critic_test
+
 from td3_agent import AgentTD3
 from ddpg_agent import AgentDDPG
 
@@ -86,7 +88,8 @@ def ddpg_test(agent, ckpt, n_episodes=100):
 
     return df
 
-env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
+env = UnityEnvironment(file_name='Crawler_Linux/Crawler.x86_64')
+#env = UnityEnvironment(file_name='Reacher_Linux_20/Reacher.x86_64')
 
 brain_name = env.brain_names[0]
 brain = env.brains[brain_name]
@@ -112,16 +115,16 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 agent_cfg_td3 = config['td3']
 
-agent_td3 = AgentTD3(state_size=state_size, action_size=action_size,
-                     random_seed=1, cfg=agent_cfg_td3)
 
+agent = AgentTD3(state_size=state_size, action_size=action_size,
+                  random_seed=1, cfg_path="config.ini")
 
 filename = 'test_td3.hdf5'
 store = pd.HDFStore(filename)
 
-for it in range(10, 150, 10):
+for it in range(100, 14600, 100):
     print("dataset_{:03}".format(it))
-    df = ddpg_test(agent_td3,"{:03}".format(it),100)
+    df = actor_critic_test(env, agent, agent_cfg_td3, it, 100)
     store.put('dataset_{:03}'.format(it), df)
     md = {'trained_episodes': it}
     store.get_storer('dataset_{:03}'.format(it)).attrs.metadata = md
